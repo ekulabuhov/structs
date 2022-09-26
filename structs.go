@@ -263,6 +263,12 @@ func getFields(v reflect.Value, tagName string) []*Field {
 			value: v.FieldByName(field.Name),
 		}
 
+		if IsStruct(f.value.Interface()) {
+			if tag := field.Tag.Get(tagName); tag == "embed" {
+				fields = append(fields, getFields(f.value, tagName)...)
+			}
+		}
+
 		fields = append(fields, f)
 
 	}

@@ -981,6 +981,37 @@ func TestFields_Anonymous(t *testing.T) {
 	}
 }
 
+func TestFields_Embedded(t *testing.T) {
+	type A struct {
+		Name string
+	}
+	a := A{Name: "example"}
+
+	type B struct {
+		A `structs:"embed"`
+		C int
+	}
+	b := &B{C: 123}
+	b.A = a
+
+	s := Fields(b)
+
+	inSlice := func(val interface{}) bool {
+		for _, v := range s {
+			if reflect.DeepEqual(v.Name(), val) {
+				return true
+			}
+		}
+		return false
+	}
+
+	for _, val := range []interface{}{"A", "C", "Name"} {
+		if !inSlice(val) {
+			t.Errorf("Fields should have the value %v", val)
+		}
+	}
+}
+
 func TestIsZero(t *testing.T) {
 	var T = struct {
 		A string
